@@ -5,7 +5,7 @@ using StudentAPI.Data;
 
 namespace StudentAPI.Repositry
 {
-    public class ClassesRepositry: IClasses
+    public class ClassesRepositry: IClassesRepositry
     {
         MySqlConnection conn;
         public ClassesRepositry()
@@ -35,7 +35,7 @@ namespace StudentAPI.Repositry
             while (reader.Read())
             {
                 classes.Add(new ClassesModel{
-                    classname = (string)reader["classname "],
+                    classname = (string)reader["classname"],
                     section = (string)reader["section"]
                 });
             }
@@ -47,29 +47,31 @@ namespace StudentAPI.Repositry
 
         }
 
-        public ClassesModel GetById(int id)
+        public ClassesModel GetById(string classname)
         {
             if(conn.State == System.Data.ConnectionState.Open)
             {
                 conn.Close();
             }
 
+            conn.Open();
+
             ClassesModel classes = null;
 
-            string query = "SELECT * FROM classes WHERE id = @id";
+            string query = "SELECT * FROM classes WHERE classname = @classname";
 
             using var cmd = new MySqlCommand(query,conn);
 
-            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Parameters.AddWithValue("@classname", classname);
 
 
             using var reader = cmd.ExecuteReader();
 
-            while (reader.Read())
+            if (reader.Read())
             {
                 classes = new ClassesModel
                 {
-                    classname = (string)reader["id"],
+                    classname = (string)reader["classname"],
                     section = (string)reader["section"]
 
                 };
@@ -89,7 +91,7 @@ namespace StudentAPI.Repositry
 
             conn.Open();
 
-            string query = "INSERT INTO classes(classname,section) VALUES(@classname,@section)";
+            string query = "INSERT INTO classes(classname,section) VALUES (@classname,@section)";
 
             using var cmd = new MySqlCommand(query, conn);
 
@@ -98,7 +100,7 @@ namespace StudentAPI.Repositry
             cmd.ExecuteNonQuery();
             conn.Close();
         }
-        public void Update(int id)
+        public void Update(string classname,ClassesModel classes)
         {
             if(conn.State == System.Data.ConnectionState.Open)
             {
@@ -107,15 +109,31 @@ namespace StudentAPI.Repositry
 
             conn.Open();
 
-            string query = "UPDATE classes SET classaname = @classname,section=@section WHERE id = @id";
+            string query = "UPDATE classes SET section=@section WHERE classname = @classname";
             using var cmd = new MySqlCommand(query, conn);
 
-            cmd.Parameters.AddWithValue("@classname", classname);
+            cmd.Parameters.AddWithValue("@classname",classname);
+            cmd.Parameters.AddWithValue("@section", classes.section);
+
+            cmd.ExecuteNonQuery();
+            conn.Close();
 
         }
 
-        public void Delete(int id)
+        public void Delete(string classname)
         {
+            if(conn.State == System.Data.ConnectionState.Open)
+            {
+                conn.Close();
+            }
+
+            conn.Open();
+            string query = "DELETE FROM classes WHERE  classname= @classname";
+            using var cmd = new MySqlCommand(query,conn);
+
+            cmd.Parameters.AddWithValue("@classname", classname);
+            cmd.ExecuteNonQuery();
+            conn.Close();
 
         }
     }

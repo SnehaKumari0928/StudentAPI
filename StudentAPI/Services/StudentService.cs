@@ -10,9 +10,9 @@ namespace StudentAPI.Service
     public class StudentService: IStudentService
     {
         IStudentRepositry repo;
-        public StudentService()
+        public StudentService(IStudentRepositry _repo)
         {
-            repo=new StudentRepositry();
+            repo = _repo;
         }
         public List<StudentModel> GetAll()
         {

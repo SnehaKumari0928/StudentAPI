@@ -1,77 +1,76 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using StudentAPI.Models;
 using StudentAPI.Service;
-using System.Xml.Serialization;
+using StudentAPI.Services;
 
 namespace StudentAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentsController : ControllerBase
+    public class ClassesController : ControllerBase
     {
-        IStudentService service;
-        public StudentsController(IStudentService _service)
+        IClassesService services;
+        public ClassesController(IClassesService _services)
         {
-            service = _service;
+            services = _services;
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult Get()
         {
-            return Ok(service.GetAll());
+            return Ok(services.GetAllClasses());
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        [HttpGet("{classname}")]
+        public IActionResult Get(string classname)
         {
-            return Ok(service.GetById(id));
+            return Ok(services.GetById(classname));
         }
 
         [HttpPost]
-        public IActionResult Post(StudentModel student)
+        public IActionResult Post(ClassesModel classes)
         {
             try
             {
-                service.Create(student);
+                services.Create(classes);
                 return Ok();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
 
+
         [HttpPut]
-        public IActionResult Put(StudentModel student, int id)
+
+        public IActionResult Put(string classname,ClassesModel classes)
         {
             try
             {
-                service.Update(student,  id);
+                services.Update(classname, classes);
                 return Ok();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
 
         [HttpDelete]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(string classname)
         {
             try
             {
-                service.Delete(id);
+                services.Delete(classname);
                 return Ok();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
+        
     }
 }
