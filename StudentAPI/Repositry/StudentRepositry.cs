@@ -1,8 +1,9 @@
 ﻿
+using Microsoft.AspNetCore.Mvc;
 using StudentAPI.Models;
 using MySql.Data.MySqlClient;
 using StudentAPI.Data;
-using StudentAPI.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace StudentAPI.Repositry
 {
@@ -120,6 +121,63 @@ namespace StudentAPI.Repositry
 
             int rowsAffected = cmd.ExecuteNonQuery();
             conn.Close();
+        }
+
+
+        public bool Register(StudentModel student)
+        {
+            if(conn.State == System.Data.ConnectionState.Open)
+            {
+                conn.Close();
+            }
+
+            conn.Open();
+            string checkQuery = "SELECT * FROM student WHERE  email = @email";
+            var cmd = new MySqlCommand(checkQuery, conn);
+            cmd.Parameters.AddWithValue("@email", student.email);
+            int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+            if(count > 0)
+            {
+                return false;
+            }
+
+            string insertQuery = "INSERT INTO students(name,age,email,password) VALUES(@name,@age,@email,@password)";
+            cmd = new MySqlCommand(insertQuery, conn);
+
+            cmd.Parameters.AddWithValue("@name", student.name);
+            cmd.Parameters.AddWithValue("@age", student.age);
+            cmd.Parameters.AddWithValue("@email", student.email);
+            cmd.Parameters.AddWithValue("@password", student.password);
+
+            cmd.ExecuteNonQuery();
+
+            conn.Close();
+            return true;
+        }
+
+        public bool Login(StudentModel student)
+        {
+            if (conn.State == System.Data.ConnectionState.Open)
+            {
+                conn.Close();
+            }
+
+            conn.Open(); 
+
+            string checkQuery = "SELECT * FROM student where email=@email AND password=@password";
+            var cmd = new MySqlCommand(checkQuery, conn);
+
+            cmd.Parameters.AddWithValue("@email", student.email);
+            cmd.Parameters.AddWithValue("@password", student.password);
+
+
+            int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+            if(count == 0) { return false; }
+
+            conn.Close();
+            return true;
         }
 
     }

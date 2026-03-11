@@ -39,6 +39,14 @@ namespace StudentAPI.Service
             repo.Delete(id);
         }
 
-       
+       public bool Register(StudentModel student)
+        {
+            return repo.Register(student);
+        }
+
+        public bool Login(StudentModel student)
+        {
+            return repo.Login(student);
+        }
     }
 }

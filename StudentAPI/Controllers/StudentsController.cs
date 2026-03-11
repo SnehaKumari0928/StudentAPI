@@ -7,8 +7,8 @@ using System.Xml.Serialization;
 
 namespace StudentAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]")] // attribute routing
+    [ApiController] // model validation
     public class StudentsController : ControllerBase
     {
         IStudentService service;
@@ -29,7 +29,7 @@ namespace StudentAPI.Controllers
             return Ok(service.GetById(id));
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public IActionResult Post(StudentModel student)
         {
             try
@@ -42,6 +42,43 @@ namespace StudentAPI.Controllers
                 return StatusCode(500, ex.Message);
             }
 
+        }
+
+        [HttpPost("register")]
+        public IActionResult Register(StudentModel student)
+        {
+            try
+            {
+                if (service.Register(student))
+                {
+                    return Ok();
+                }
+
+                return BadRequest("User already exists.");
+                
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
+        [HttpPost("login")]
+        public IActionResult Login(StudentModel student)
+        {
+            try
+            {
+                if (service.Login(student))
+                    return Ok();
+
+
+                return BadRequest("User not found.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut]

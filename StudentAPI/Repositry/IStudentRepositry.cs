@@ -9,5 +9,7 @@ namespace StudentAPI.Repositry
         public void Create(StudentModel student);
         public void Update(StudentModel student,int id);
         public void Delete(int id);
+        public bool Register(StudentModel student);
+        public bool Login(StudentModel student);
     }
 }
