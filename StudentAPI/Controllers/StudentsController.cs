@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using StudentAPI.Helpers;
 using StudentAPI.Models;
 using StudentAPI.Service;
 using System.Xml.Serialization;
@@ -12,11 +14,13 @@ namespace StudentAPI.Controllers
     public class StudentsController : ControllerBase
     {
         IStudentService service;
-        public StudentsController(IStudentService _service)
+        IConfiguration config;
+        public StudentsController(IStudentService _service,IConfiguration _config)
         {
             service = _service;
+            config = _config;
         }
-
+        [Authorize]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -67,20 +71,25 @@ namespace StudentAPI.Controllers
         [HttpPost("login")]
         public IActionResult Login(StudentModel student)
         {
-            try
+            var user = service.Login(student);
+            if(user == null)
             {
-                if (service.Login(student))
-                    return Ok();
-
-
-                return BadRequest("User not found.");
+                return BadRequest("Invalid credentials");
             }
-            catch (Exception ex)
+
+            var accessToken = TokenHelper.GenerateAccessToken(user, config);
+            var refreshToken = TokenHelper.GenerateRefreshToken();
+
+            service.SaveRefreshToken(user.id, refreshToken);
+
+            return Ok(new
             {
-                return StatusCode(500, ex.Message);
-            }
+                accessToken,
+                refreshToken
+            });
         }
 
+        [Authorize]
         [HttpPut]
         public IActionResult Put(StudentModel student, int id)
         {
@@ -96,6 +105,7 @@ namespace StudentAPI.Controllers
 
         }
 
+        [Authorize]
         [HttpDelete]
         public IActionResult Delete(int id)
         {

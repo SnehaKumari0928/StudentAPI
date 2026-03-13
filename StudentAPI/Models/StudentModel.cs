@@ -6,7 +6,7 @@ namespace StudentAPI.Models
     {
        
         public int id { get; set; }
-        public string name { get; set; }
+        public string? name { get; set; }
         public int age { get; set; }
 
         [Required(ErrorMessage ="Email is required")]
@@ -23,6 +23,10 @@ namespace StudentAPI.Models
             get;
             set;
         }
+
+        public string? refreshToken { get; set; }
+
+        public DateTime refreshTokenExpiry { get; set; }
 
 
     }

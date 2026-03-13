@@ -156,7 +156,7 @@ namespace StudentAPI.Repositry
             return true;
         }
 
-        public bool Login(StudentModel student)
+        public StudentModel Login(StudentModel student)
         {
             if (conn.State == System.Data.ConnectionState.Open)
             {
@@ -172,13 +172,48 @@ namespace StudentAPI.Repositry
             cmd.Parameters.AddWithValue("@password", student.password);
 
 
-            int count = Convert.ToInt32(cmd.ExecuteScalar());
+            var reader = cmd.ExecuteReader();
 
-            if(count == 0) { return false; }
+            StudentModel user = null;
+
+            while (reader.Read())
+            {
+                user = new StudentModel
+                {
+                    id = Convert.ToInt32(reader["id"]),
+                    name = reader["name"].ToString(),
+                    age = Convert.ToInt32(reader["age"]),
+                    email = reader["email"].ToString(),
+
+
+                };
+            }
 
             conn.Close();
-            return true;
+            return user;
         }
 
+
+        public void SaveRefreshToken(int id, string token)
+        {
+            if(conn.State == System.Data.ConnectionState.Open)
+            {
+                conn.Close();
+            }
+
+            conn.Open();
+
+            string query = "UPDATE  student SET refreshToken=@token, refreshTokenExpiry=@expiry where id=@id";
+
+            var cmd = new MySqlCommand(query, conn);
+
+            cmd.Parameters.AddWithValue("@token", token);
+            cmd.Parameters.AddWithValue("@expiry", DateTime.Now.AddDays(7));
+            cmd.Parameters.AddWithValue("@id", id);
+
+            cmd.ExecuteNonQuery();
+
+            conn.Close();
+        }
     }
 }

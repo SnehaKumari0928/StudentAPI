@@ -44,9 +44,14 @@ namespace StudentAPI.Service
             return repo.Register(student);
         }
 
-        public bool Login(StudentModel student)
+        public StudentModel Login(StudentModel student)
         {
             return repo.Login(student);
+        }
+
+        public void SaveRefreshToken(int id, string token)
+        {
+            repo.SaveRefreshToken(id, token);
         }
     }
 }
